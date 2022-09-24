@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import authRouter from './authRouter.js';
 
 const PORT = process.env.PORT || 5000;
-const DB_URL = `mongodb+srv://traxerr1337:traxerr1337@cluster0.vf2fblu.mongodb.net/?retryWrites=true&w=majority`;
+const DB_URL = process.env.MONGODB_URL;
 
 const app = express();
 app.use(cors());
