@@ -7,6 +7,7 @@ import authRouter from './authRouter.js';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.MONGO_DB_URL;
+
 const app = express();
 app.use(cors());
 app.use(express.json());
