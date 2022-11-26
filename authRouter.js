@@ -17,8 +17,8 @@ router.post(
 );
 router.post('/login', controller.login);
 router.post('/addNote', authMiddleware, controller.addNote);
+router.put('/updateNote', authMiddleware, controller.updateNote);
 router.get('/getNote', authMiddleware, controller.getNote);
-router.get('/users', authMiddleware, controller.getUsers);
 router.delete('/delete', authMiddleware, controller.deleteNote);
 
 export default router;

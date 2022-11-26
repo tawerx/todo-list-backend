@@ -1,9 +1,9 @@
 import User from './models/User.js';
-import Notes from './models/Notes.js';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import secret from './config.js';
+import NewNotes from './models/NewNotes.js';
 
 const generateAccesToken = (id) => {
   const payload = {
@@ -62,12 +62,24 @@ class authController {
 
   async addNote(req, res) {
     try {
-      const { value, date } = req.body;
+      const { title, description, date, dateCreate, files, complete, delay } = req.body;
       const token = req.headers.authorization.split(' ')[1];
       const { id } = parseJwt(token);
       const user = await User.findOne({ _id: id });
-      const note = await Notes.create({ value, date, user });
-      res.status(200).json({ message: 'Запись успешно добавлена!' });
+      const note = await NewNotes.create({
+        title,
+        description,
+        date,
+        dateCreate,
+        files,
+        complete,
+        delay,
+        user,
+      });
+      res.status(200).json({
+        message: 'Запись успешно добавлена!',
+        noteRes: { _id: note._id, title, description, date, dateCreate, files, complete, delay },
+      });
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: 'Ошибка добавления записи' });
@@ -78,13 +90,18 @@ class authController {
       const token = req.headers.authorization.split(' ')[1];
       const { id } = parseJwt(token);
       const { _id } = await User.findOne({ _id: id });
-      const notes = await Notes.find({ user: _id });
+      const notes = await NewNotes.find({ user: _id });
       res.json(
         notes.map((obj, i) => {
           return {
-            id: obj._id,
-            value: obj.value,
+            _id: obj._id,
+            title: obj.title,
+            description: obj.description,
             date: obj.date,
+            dateCreate: obj.dateCreate,
+            files: obj.files,
+            complete: obj.complete,
+            delay: obj.delay,
           };
         }),
       );
@@ -94,24 +111,25 @@ class authController {
     }
   }
 
-  async getUsers(req, res) {
-    try {
-      const users = await User.findOne({ _id: '632cdc718ecd6006d8982397' });
-      res.json(users);
-    } catch (error) {
-      console.log(error);
-      res.status(400).json({ message: 'Registration error' });
-    }
-  }
-
   async deleteNote(req, res) {
     try {
       const { deleteId } = req.body;
-      await Notes.deleteOne({ _id: deleteId });
+      await NewNotes.deleteOne({ _id: deleteId });
       res.json({ message: 'Запись удалена' });
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: 'Delete error' });
+    }
+  }
+
+  async updateNote(req, res) {
+    try {
+      const { _id, obj } = req.body;
+      const note = await NewNotes.findByIdAndUpdate(_id, obj);
+      res.status(200).json({ message: 'Note updated', note });
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ message: 'Update error' });
     }
   }
 }
